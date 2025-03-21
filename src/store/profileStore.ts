@@ -5,6 +5,7 @@ import {
   Profile,
   ProfileUpdate,
   ProfileValidationError,
+  ProfileWithEmail,
 } from "@/types/models/profile";
 import { FileOptions } from "@supabase/storage-js";
 
@@ -18,7 +19,7 @@ interface ExtendedFileOptions extends FileOptions {
 }
 
 interface ProfileState {
-  profile: Profile | null;
+  profile: ProfileWithEmail | null;
   isLoading: boolean;
   error: Error | null;
   avatarUploadProgress: number;
@@ -26,7 +27,7 @@ interface ProfileState {
 
 export const useProfileStore = create<
   ProfileState & {
-    getProfile: () => Promise<Profile>;
+    getProfile: () => Promise<ProfileWithEmail>;
     updateProfile: (data: ProfileUpdate) => Promise<void>;
     uploadAvatar: (file: File) => Promise<string>;
     deleteAvatar: () => Promise<void>;
@@ -54,8 +55,13 @@ export const useProfileStore = create<
 
       if (error) throw error;
 
-      set({ profile, isLoading: false });
-      return profile;
+      const profileWithEmail: ProfileWithEmail = {
+        ...profile,
+        email: user.email,
+      };
+
+      set({ profile: profileWithEmail, isLoading: false });
+      return profileWithEmail;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to fetch profile";
