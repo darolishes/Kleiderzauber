@@ -1,14 +1,22 @@
 import { User } from "../auth/types";
 
-export interface ProfileState {
-  loading: boolean;
-  error: string | null;
-  data: ProfileData | null;
-}
-
-export interface ProfileData extends Pick<User, "name" | "avatar_url"> {
+export interface Profile {
+  id: string;
+  username: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  website: string | null;
+  bio: string | null;
+  updated_at: string | null;
   preferences: UserPreferences;
   settings: UserSettings;
+}
+
+export interface ProfileState {
+  profile: Profile | null;
+  isLoading: boolean;
+  error: Error | null;
+  avatarUploadProgress: number;
 }
 
 export interface UserPreferences {
@@ -22,3 +30,12 @@ export interface UserSettings {
   twoFactorEnabled: boolean;
   privacyLevel: "public" | "private" | "friends";
 }
+
+export interface ProfileFormData {
+  username: string;
+  full_name: string;
+  website?: string;
+  bio?: string;
+}
+
+export type ProfileUpdateData = Partial<Omit<Profile, "id" | "updated_at">>;
