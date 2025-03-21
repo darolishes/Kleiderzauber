@@ -3,9 +3,9 @@ import { toast } from "@/hooks/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import {
   Profile,
-  ProfileState,
-  ProfileUpdateData,
-} from "@/components/profile/types";
+  ProfileUpdate,
+  ProfileValidationError,
+} from "@/types/models/profile";
 import { FileOptions } from "@supabase/storage-js";
 
 interface UploadProgressEvent {
@@ -17,10 +17,17 @@ interface ExtendedFileOptions extends FileOptions {
   onUploadProgress?: (progress: UploadProgressEvent) => void;
 }
 
+interface ProfileState {
+  profile: Profile | null;
+  isLoading: boolean;
+  error: Error | null;
+  avatarUploadProgress: number;
+}
+
 export const useProfileStore = create<
   ProfileState & {
     getProfile: () => Promise<Profile>;
-    updateProfile: (data: ProfileUpdateData) => Promise<void>;
+    updateProfile: (data: ProfileUpdate) => Promise<void>;
     uploadAvatar: (file: File) => Promise<string>;
     deleteAvatar: () => Promise<void>;
     resetError: () => void;
@@ -62,7 +69,7 @@ export const useProfileStore = create<
     }
   },
 
-  updateProfile: async (data: ProfileUpdateData) => {
+  updateProfile: async (data: ProfileUpdate) => {
     set({ isLoading: true, error: null });
     try {
       const {
