@@ -1,8 +1,14 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/authStore';
-import { Shirt as Tshirt, Images, User as UserIcon, LogOut, Camera } from 'lucide-react';
-import Navigation from './Navigation';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
+import {
+  Shirt as Tshirt,
+  Images,
+  User as UserIcon,
+  LogOut,
+  Camera,
+} from "lucide-react";
+import Navigation from "./navigation";
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuthStore();
@@ -10,7 +16,7 @@ const Header: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/auth');
+    navigate("/auth");
   };
 
   return (

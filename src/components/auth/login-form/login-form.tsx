@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Define the form schema with Zod
 const formSchema = z.object({
@@ -129,15 +130,7 @@ const LoginForm: React.FC = () => {
                   {isLoading ? "Logging in..." : "Log In"}
                 </Button>
                 <Button variant="link" size="sm" className="px-0" asChild>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // Handle password reset logic here or redirect to password reset page
-                    }}
-                  >
-                    Forgot Password?
-                  </a>
+                  <Link to="/auth?tab=reset">Forgot Password?</Link>
                 </Button>
               </div>
             </form>

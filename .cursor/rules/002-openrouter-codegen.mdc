@@ -1,0 +1,49 @@
+---
+description: "OpenRouter AI Integration and Code Generation"
+globs: "**/*.{js,ts,py,java,go,rs}"
+tags: [ai, codegen, validation]
+priority: 1
+version: 2.0.0
+---
+## Context
+Code generation, validation, and AI-assisted development using OpenRouter
+
+## Requirements
+1. Model Configuration:
+   - Use optimized context window (32768 tokens)
+   - Configure for advanced reasoning chains
+   - Enable dynamic adaptation
+   - Implement fallback strategies
+
+2. Code Generation:
+   - Generate type-safe, secure code
+   - Follow project style guidelines
+   - Include comprehensive error handling
+   - Add automated tests
+   - Generate documentation
+
+3. Validation Workflow:
+   - Cross-validate with DeepLucid
+   - Verify security compliance
+   - Check performance metrics
+   - Validate type safety
+   - Run automated tests
+
+4. Integration Points:
+   - Sequential thinking validation
+   - MCP server coordination
+   - Conflict resolution
+   - Learning rate adjustment
+
+5. Quality Control:
+   - Confidence scoring (0-100)
+   - Security checks
+   - Performance benchmarks
+   - Documentation coverage
+
+## Implementation
+1. Set up OpenRouter API
+2. Configure model parameters
+3. Implement validation pipeline
+4. Enable automated testing
+5. Track metrics and feedback

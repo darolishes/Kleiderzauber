@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { LoginForm, RegisterForm } from "../components/auth";
+import { LoginForm, RegisterForm, ResetPasswordForm } from "../components/auth";
 
-type AuthTab = "login" | "register";
+type AuthTab = "login" | "register" | "reset";
 
 const Auth: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -14,7 +14,7 @@ const Auth: React.FC = () => {
   useEffect(() => {
     // Check if tab is specified in URL
     const tab = searchParams.get("tab") as AuthTab;
-    if (tab && (tab === "login" || tab === "register")) {
+    if (tab && (tab === "login" || tab === "register" || tab === "reset")) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -45,60 +45,78 @@ const Auth: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <div className="flex border-b">
-            <button
-              className={`flex-1 py-3 px-4 text-center font-medium ${
-                activeTab === "login"
-                  ? "text-indigo-600 border-b-2 border-indigo-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("login")}
-            >
-              Log In
-            </button>
-            <button
-              className={`flex-1 py-3 px-4 text-center font-medium ${
-                activeTab === "register"
-                  ? "text-indigo-600 border-b-2 border-indigo-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-              onClick={() => setActiveTab("register")}
-            >
-              Register
-            </button>
+        {activeTab === "reset" ? (
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="flex justify-between items-center border-b p-4">
+              <button
+                className="text-indigo-600 hover:text-indigo-800 font-medium text-sm"
+                onClick={() => setActiveTab("login")}
+              >
+                ← Back to Login
+              </button>
+            </div>
+            <div className="p-6">
+              <ResetPasswordForm />
+            </div>
           </div>
+        ) : (
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="flex border-b">
+              <button
+                className={`flex-1 py-3 px-4 text-center font-medium ${
+                  activeTab === "login"
+                    ? "text-indigo-600 border-b-2 border-indigo-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("login")}
+              >
+                Log In
+              </button>
+              <button
+                className={`flex-1 py-3 px-4 text-center font-medium ${
+                  activeTab === "register"
+                    ? "text-indigo-600 border-b-2 border-indigo-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("register")}
+              >
+                Register
+              </button>
+            </div>
 
-          <div className="p-6">
-            {activeTab === "login" ? <LoginForm /> : <RegisterForm />}
+            <div className="p-6">
+              {activeTab === "login" ? <LoginForm /> : <RegisterForm />}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            {activeTab === "login" ? (
-              <>
-                Don't have an account?{" "}
-                <button
-                  className="text-indigo-600 hover:text-indigo-800 font-medium"
-                  onClick={() => setActiveTab("register")}
-                >
-                  Register
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <button
-                  className="text-indigo-600 hover:text-indigo-800 font-medium"
-                  onClick={() => setActiveTab("login")}
-                >
-                  Log In
-                </button>
-              </>
-            )}
-          </p>
-        </div>
+        {activeTab !== "reset" && (
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600">
+              {activeTab === "login" ? (
+                <>
+                  Don't have an account?{" "}
+                  <button
+                    className="text-indigo-600 hover:text-indigo-800 font-medium"
+                    onClick={() => setActiveTab("register")}
+                  >
+                    Register
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <button
+                    className="text-indigo-600 hover:text-indigo-800 font-medium"
+                    onClick={() => setActiveTab("login")}
+                  >
+                    Log In
+                  </button>
+                </>
+              )}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

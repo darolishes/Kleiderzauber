@@ -1,50 +1,69 @@
-# Kleiderzauber Project Rules
+# PROJECT-WIDE DIRECTIVES
 
-## Project Patterns
+1. All .mdc rules in .cursor/rules take precedence
+2. Default to TypeScript unless specified otherwise
+3. Use AWS SDK v3 patterns for cloud integrations
+4. Prefer named exports over default exports
+5. Document all @todo comments in JIRA format
+6. Follow security-first development practices
+7. Implement automated testing for all changes
+8. Use context-aware documentation generation
 
-- Use functional components with TypeScript for all React components
-- Implement component-specific styles with Tailwind CSS utilities
-- Organize components in dedicated folders with related files
-- Use Zustand stores for global state management
-- Follow the pattern of separating UI components from data/logic
-- Use React Router for navigation and route protection
-- Implement responsive design with mobile-first approach
-- Use custom hooks to extract and reuse complex logic
+# MCP CONFIGURATION
 
-## User Preferences
+- Primary servers: Sequential Thinking, OpenRouter, DeepLucid
+- Fallback strategy: Local context → MCP → Manual
+- Context window: 32768 tokens
+- Concurrent agents: 3-4 maximum
+- Learning rate: Adaptive based on performance
+- Confidence threshold: 80% for high-risk changes
 
-- Clean, modern UI with consistent spacing
-- Descriptive variable and function names
-- Component files named with PascalCase
-- Utility files named with camelCase
-- Consistent code formatting with ESLint and TypeScript
-- Detailed comments for complex logic
-- Responsive designs that work well on all device sizes
+# AI INTEGRATION RULES
 
-## Known Challenges
+1. Sequential Thinking:
 
-- Canvas API has different behaviors across browsers
-- Image manipulation performance can be slow on mobile devices
-- Large image files need optimization before storage
-- Complex state management for outfit composition
-- Ensuring consistent auth behavior with Supabase
+   - Use DeepLucid methodology for all complex tasks
+   - Break down problems into numbered steps
+   - Include dependency mapping
+   - Validate solutions through OpenRouter
 
-## Implementation Paths
+2. Code Analysis:
 
-- Authentication: Leverage Supabase Auth UI for login/signup
-- File Upload: Use React Dropzone + browser-image-compression
-- State Management: Zustand stores organized by feature
-- Image Manipulation: Canvas API with custom controls
-- Responsive Design: Tailwind breakpoints for different viewports
+   - Implement multi-phase directory scanning
+   - Use gitignore-aware file filtering
+   - Cache results for performance
+   - Clear cache every 24 hours
 
-## Tool Usage
+3. Documentation:
 
-- Vite for fast development and optimized builds
-- TypeScript for type safety
-- ESLint for code quality
-- Tailwind CSS for styling
-- Supabase for backend services
-- React Router for navigation
-- React Hot Toast for notifications
+   - Generate context-aware markdown files
+   - Use intelligent naming conventions
+   - Include clear descriptions and boundaries
+   - Track changes via Linear
 
-_Note: This file serves as a learning journal for the project. It captures important patterns, preferences, and project intelligence that help work more effectively. Update as new insights are discovered._
+4. Security:
+
+   - Validate all file paths
+   - Prevent access to sensitive directories
+   - Log all operations
+   - Implement security checks
+
+5. Performance:
+   - Use efficient glob patterns
+   - Implement caching with versioning
+   - Optimize API calls
+   - Monitor resource usage
+
+# ERROR HANDLING
+
+1. Implement comprehensive error logging
+2. Use descriptive error messages
+3. Include debugging context
+4. Provide recovery steps
+
+# VERSION CONTROL
+
+1. Use separate branches per domain
+2. Implement automated conflict resolution
+3. Track changes via Linear
+4. Maintain detailed commit messages
