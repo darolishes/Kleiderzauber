@@ -1,30 +1,33 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import * as z from "zod";
 import { useProfileStore } from "@/store/profileStore";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Avatar } from "./avatar";
-import { ProfileUpdate } from "@/types/models/profile";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AvatarUpload } from "./avatar-upload";
+import { toast } from "@/hooks/ui/use-toast";
 
-const profileSchema = z.object({
-  full_name: z.string().min(2, "Name must be at least 2 characters").nullable(),
+const formSchema = z.object({
+  full_name: z.string().min(2, "Name must be at least 2 characters").nullish(),
 });
 
-type ProfileFormValues = z.infer<typeof profileSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 export function ProfileForm() {
-  const { profile, isLoading, getProfile, updateProfile } = useProfileStore();
-  const [isSaving, setIsSaving] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isDirty },
-  } = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
+  const { profile, getProfile, updateProfile } = useProfileStore();
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       full_name: profile?.full_name ?? null,
     },
@@ -36,50 +39,97 @@ export function ProfileForm() {
 
   useEffect(() => {
     if (profile) {
-      reset({
+      form.reset({
         full_name: profile.full_name ?? null,
       });
     }
-  }, [profile, reset]);
+  }, [form, profile]);
 
-  const onSubmit = async (data: ProfileFormValues) => {
-    setIsSaving(true);
-    const update: ProfileUpdate = {
-      full_name: data.full_name ?? undefined,
-    };
-    await updateProfile(update);
-    setIsSaving(false);
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await updateProfile(data);
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    }
   };
 
-  if (isLoading && !profile) return <span className="loading" />;
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return "?";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="card">
-      <header className="flex gap-4 items-center">
-        <Avatar url={profile?.avatar_url ?? undefined} size="lg" editable />
-        <div>
-          <h2 className="text-xl font-semibold">Your Profile</h2>
-          <p className="text-muted">{profile?.email}</p>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="flex flex-col items-center gap-4">
+          <Avatar className="h-24 w-24">
+            <AvatarImage src={profile?.avatar_url ?? undefined} />
+            <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
+          </Avatar>
+          <AvatarUpload
+            onUploadSuccess={() => {
+              getProfile();
+              toast({
+                title: "Success",
+                description: "Avatar updated successfully",
+              });
+            }}
+            onUploadError={(error) => {
+              toast({
+                title: "Error",
+                description: "Failed to update avatar",
+                variant: "destructive",
+              });
+            }}
+            onDeleteSuccess={() => {
+              getProfile();
+              toast({
+                title: "Success",
+                description: "Avatar deleted successfully",
+              });
+            }}
+            onDeleteError={(error) => {
+              toast({
+                title: "Error",
+                description: "Failed to delete avatar",
+                variant: "destructive",
+              });
+            }}
+          />
         </div>
-      </header>
 
-      <Label htmlFor="full_name">Full Name</Label>
-      <Input
-        id="full_name"
-        {...register("full_name")}
-        placeholder="Enter your full name"
-      />
-      {errors.full_name && (
-        <p className="text-error text-sm">{errors.full_name.message}</p>
-      )}
+        <FormField
+          control={form.control}
+          name="full_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter your name"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <Button
-        type="submit"
-        disabled={!isDirty || isSaving || isLoading}
-        className="w-full mt-4"
-      >
-        {isSaving ? "Saving..." : "Save Changes"}
-      </Button>
-    </form>
+        <Button type="submit">Save changes</Button>
+      </form>
+    </Form>
   );
 }

@@ -6,13 +6,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useProfileStore } from "@/store/profileStore";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-export const ProfileView = () => {
+const getInitials = (name?: string | null): string => {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .substring(0, 2);
+};
+
+export function ProfileView() {
   const { profile, isLoading, error, getProfile } = useProfileStore();
 
   useEffect(() => {
@@ -82,18 +92,10 @@ export const ProfileView = () => {
         <div className="flex items-center space-x-4">
           <Avatar className="h-16 w-16">
             <AvatarImage
-              src={profile.avatar_url || undefined}
+              src={profile.avatar_url ?? undefined}
               alt={profile.full_name || "Profile"}
             />
-            <AvatarFallback>
-              {profile.full_name
-                ? profile.full_name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                : "?"}
-            </AvatarFallback>
+            <AvatarFallback>{getInitials(profile.full_name)}</AvatarFallback>
           </Avatar>
           <div>
             <h3 className="text-lg font-medium">
@@ -147,4 +149,4 @@ export const ProfileView = () => {
       </CardContent>
     </Card>
   );
-};
+}

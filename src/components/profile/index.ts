@@ -1,3 +1,3 @@
-export { Avatar } from "./avatar";
-export * from "./profile-form";
+export { ProfileForm } from "./profile-form";
+export { ProfileView } from "./profile-view";
 export * from "./types";

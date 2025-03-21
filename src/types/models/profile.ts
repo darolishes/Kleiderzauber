@@ -1,11 +1,30 @@
 import { Database } from "@/lib/database.types";
 
-export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export interface Profile {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
-export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+export type ProfileUpdate = Partial<Pick<Profile, "full_name" | "avatar_url">>;
+
+export interface ProfilePreferences {
+  theme?: "light" | "dark" | "system";
+  language?: string;
+}
+
+export interface ProfileSettings {
+  privacyLevel?: "public" | "private" | "friends";
+  emailNotifications?: boolean;
+}
 
 export interface ProfileWithEmail extends Profile {
-  email?: string | null;
+  email: string;
+  preferences?: ProfilePreferences;
+  settings?: ProfileSettings;
 }
 
 export interface ProfileFormData {
@@ -17,7 +36,16 @@ export interface ProfileFormData {
 
 export interface AvatarUploadResponse {
   path: string;
-  url: string;
+  publicUrl: string;
+}
+
+export interface AvatarUploadProgress {
+  progress: number;
+  phase: "compressing" | "uploading" | "idle" | "deleting";
+}
+
+export interface AvatarDeleteResponse {
+  path: string;
 }
 
 export type ProfileValidationError = {

@@ -6,38 +6,32 @@ import {
   ProfileUpdate,
   ProfileValidationError,
   ProfileWithEmail,
+  AvatarUploadProgress,
 } from "@/types/models/profile";
 import { FileOptions } from "@supabase/storage-js";
 
-interface UploadProgressEvent {
-  loaded: number;
-  total: number;
-}
-
 interface ExtendedFileOptions extends FileOptions {
-  onUploadProgress?: (progress: UploadProgressEvent) => void;
+  onUploadProgress?: (progress: { loaded: number; total: number }) => void;
 }
 
 interface ProfileState {
-  profile: ProfileWithEmail | null;
+  profile: Profile | null;
   isLoading: boolean;
   error: Error | null;
-  avatarUploadProgress: number;
+  uploadProgress: AvatarUploadProgress;
+  getProfile: () => Promise<void>;
+  updateProfile: (profile: ProfileUpdate) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<string>;
+  deleteAvatar: () => Promise<void>;
+  resetError: () => void;
+  setUploadProgress: (progress: AvatarUploadProgress) => void;
 }
 
-export const useProfileStore = create<
-  ProfileState & {
-    getProfile: () => Promise<ProfileWithEmail>;
-    updateProfile: (data: ProfileUpdate) => Promise<void>;
-    uploadAvatar: (file: File) => Promise<string>;
-    deleteAvatar: () => Promise<void>;
-    resetError: () => void;
-  }
->((set, get) => ({
+export const useProfileStore = create<ProfileState>((set, get) => ({
   profile: null,
   isLoading: false,
   error: null,
-  avatarUploadProgress: 0,
+  uploadProgress: { progress: 0, phase: "idle" },
 
   getProfile: async () => {
     set({ isLoading: true, error: null });
@@ -45,70 +39,46 @@ export const useProfileStore = create<
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error("No user found");
 
-      const { data: profile, error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
 
       if (error) throw error;
-
-      const profileWithEmail: ProfileWithEmail = {
-        ...profile,
-        email: user.email,
-      };
-
-      set({ profile: profileWithEmail, isLoading: false });
-      return profileWithEmail;
+      set({ profile: data });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to fetch profile";
-      set({ error: new Error(message), isLoading: false });
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
-      throw error;
+      set({ error: error as Error });
+    } finally {
+      set({ isLoading: false });
     }
   },
 
-  updateProfile: async (data: ProfileUpdate) => {
+  updateProfile: async (profile: ProfileUpdate) => {
     set({ isLoading: true, error: null });
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error("No user found");
 
       const { error } = await supabase
         .from("profiles")
-        .update({ ...data, updated_at: new Date().toISOString() })
+        .update(profile)
         .eq("id", user.id);
 
       if (error) throw error;
 
+      // Update local state
       set((state) => ({
-        profile: state.profile ? { ...state.profile, ...data } : null,
-        isLoading: false,
+        profile: state.profile ? { ...state.profile, ...profile } : null,
       }));
-
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update profile";
-      set({ error: new Error(message), isLoading: false });
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
-      throw error;
+      set({ error: error as Error });
+    } finally {
+      set({ isLoading: false });
     }
   },
 
@@ -117,102 +87,84 @@ export const useProfileStore = create<
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error("No user found");
 
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error("File size must be less than 5MB");
-      }
-
-      if (!file.type.startsWith("image/")) {
-        throw new Error("File must be an image");
-      }
-
+      // Upload file to storage
       const fileExt = file.name.split(".").pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      set({ uploadProgress: { progress: 0, phase: "uploading" } });
 
       const options: ExtendedFileOptions = {
+        cacheControl: "3600",
         upsert: true,
-        onUploadProgress: (progress: UploadProgressEvent) => {
-          const percentage = (progress.loaded / progress.total) * 100;
-          set({ avatarUploadProgress: percentage });
+        onUploadProgress: (progress) => {
+          const percentage = Math.round(
+            (progress.loaded / progress.total) * 100
+          );
+          set({
+            uploadProgress: { progress: percentage, phase: "uploading" },
+          });
         },
       };
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from("avatars")
         .upload(filePath, file, options);
 
       if (uploadError) throw uploadError;
+      if (!data) throw new Error("Upload failed");
 
-      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      const avatarUrl = data.publicUrl;
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
-      await get().updateProfile({ avatar_url: avatarUrl });
+      // Update profile with new avatar URL
+      await get().updateProfile({ avatar_url: publicUrl });
 
-      set({ avatarUploadProgress: 0 });
-      toast({
-        title: "Success",
-        description: "Avatar uploaded successfully",
-      });
-
-      return avatarUrl;
+      set({ uploadProgress: { progress: 0, phase: "idle" } });
+      return publicUrl;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to upload avatar";
-      set({
-        error: new Error(message),
-        isLoading: false,
-        avatarUploadProgress: 0,
-      });
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      set({ error: error as Error });
       throw error;
     }
   },
 
   deleteAvatar: async () => {
-    set({ isLoading: true, error: null });
+    set({ uploadProgress: { progress: 0, phase: "deleting" } });
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error("No user found");
 
-      const { profile } = get();
+      const profile = get().profile;
       if (!profile?.avatar_url) return;
 
-      // Extract filename from URL
-      const fileName = profile.avatar_url.split("/").pop();
-      if (!fileName) throw new Error("Invalid avatar URL");
+      // Extract file path from URL
+      const url = new URL(profile.avatar_url);
+      const filePath = url.pathname.split("/").slice(-2).join("/");
 
+      // Delete file from storage
       const { error: deleteError } = await supabase.storage
         .from("avatars")
-        .remove([fileName]);
+        .remove([filePath]);
 
       if (deleteError) throw deleteError;
 
+      // Update profile
       await get().updateProfile({ avatar_url: null });
 
-      toast({
-        title: "Success",
-        description: "Avatar deleted successfully",
-      });
+      set({ uploadProgress: { progress: 0, phase: "idle" } });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to delete avatar";
-      set({ error: new Error(message), isLoading: false });
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      set({ error: error as Error });
       throw error;
     }
   },
 
   resetError: () => set({ error: null }),
+
+  setUploadProgress: (progress: AvatarUploadProgress) =>
+    set({ uploadProgress: progress }),
 }));
