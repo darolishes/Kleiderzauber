@@ -6,7 +6,7 @@ import { useProfileStore } from "../../store/profileStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Avatar from "./avatar";
+import { Avatar } from "./avatar";
 
 const profileSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters").optional(),
