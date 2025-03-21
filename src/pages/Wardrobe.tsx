@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Filter, Grid, List } from 'lucide-react';
-import { useWardrobeStore } from '../store/wardrobeStore';
-import UploadZone from '../components/Wardrobe/UploadZone';
-import ItemCard from '../components/Wardrobe/ItemCard';
-import type { ClothingItem } from '../types/wardrobe';
+import React, { useEffect, useState } from "react";
+import { Filter, Grid, List } from "lucide-react";
+import { useWardrobeStore } from "@/store/wardrobeStore";
+import { UploadZone, ItemCard } from "@/features/wardrobe";
+import type { ClothingItem } from "@/types/wardrobe";
 
-const Wardrobe: React.FC = () => {
+export const Wardrobe: React.FC = () => {
   const { items, loading, fetchItems } = useWardrobeStore();
   const [selectedItem, setSelectedItem] = useState<ClothingItem | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   useEffect(() => {
     fetchItems();
@@ -33,17 +32,17 @@ const Wardrobe: React.FC = () => {
           <div className="border-l border-gray-200 h-6" />
           <button
             className={`p-2 rounded-md hover:bg-gray-100 ${
-              viewMode === 'grid' ? 'text-indigo-600' : 'text-gray-500'
+              viewMode === "grid" ? "text-indigo-600" : "text-gray-500"
             }`}
-            onClick={() => setViewMode('grid')}
+            onClick={() => setViewMode("grid")}
           >
             <Grid className="h-5 w-5" />
           </button>
           <button
             className={`p-2 rounded-md hover:bg-gray-100 ${
-              viewMode === 'list' ? 'text-indigo-600' : 'text-gray-500'
+              viewMode === "list" ? "text-indigo-600" : "text-gray-500"
             }`}
-            onClick={() => setViewMode('list')}
+            onClick={() => setViewMode("list")}
           >
             <List className="h-5 w-5" />
           </button>
@@ -66,22 +65,16 @@ const Wardrobe: React.FC = () => {
       ) : (
         <div
           className={
-            viewMode === 'grid'
-              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-              : 'space-y-4'
+            viewMode === "grid"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              : "space-y-4"
           }
         >
           {items.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              onEdit={handleEditItem}
-            />
+            <ItemCard key={item.id} item={item} onEdit={handleEditItem} />
           ))}
         </div>
       )}
     </div>
   );
 };
-
-export default Wardrobe;

@@ -10,19 +10,33 @@
 
 ## Status
 
-Not Started
+Blocked - Waiting for Story-4 completion
+Previous Status: Not Started
 
 ## Context
 
-This story builds upon the authentication functionality implemented in Story-1 and the UI components from Story-2. It focuses on creating a comprehensive user profile management system that allows users to view and edit their personal information, upload profile pictures, and set preferences. The profile management system will utilize Supabase's storage for avatar uploads and database for storing user information with proper row-level security policies.
+This story builds upon the authentication functionality implemented in Story-1, the UI components from Story-2, and requires the refactored project structure from Story-4. It focuses on creating a comprehensive user profile management system that allows users to view and edit their personal information, upload profile pictures, and set preferences. The profile management system will utilize Supabase's storage for avatar uploads and database for storing user information with proper row-level security policies.
+
+## Dependencies
+
+1. Story-1: ✅ Authentication Implementation (Completed)
+2. Story-2: ✅ UI Component Library (Completed)
+3. Story-4: 🚧 Project Structure Refactoring (In Progress)
+   - Required for consistent component patterns
+   - Needed for feature-based directory structure
+   - Waiting for export pattern standardization
+   - Blocked by CSS architecture documentation
 
 ## Estimation
 
 Story Points: 5
+Blocked Time: Started 2025-03-21
+Expected Unblock: After Story-4 completion
 
 ## Tasks
 
 1. - [ ] Set up Supabase database schema for profiles
+     > Blocked by Story-4: Waiting for project structure standards
 
    1. - [ ] Create profiles table with proper RLS policies
    2. - [ ] Set up storage bucket for avatar images
@@ -30,6 +44,7 @@ Story Points: 5
    4. - [ ] Test database setup and security
 
 2. - [ ] Create Profile Store
+     > Blocked by Story-4: Waiting for store pattern documentation
 
    1. - [ ] Write tests for profile store
    2. - [ ] Implement Zustand profile store
@@ -37,6 +52,7 @@ Story Points: 5
    4. - [ ] Test profile state transitions
 
 3. - [ ] Implement Profile View UI
+     > Blocked by Story-4: Waiting for component standards
 
    1. - [ ] Create profile information display component
    2. - [ ] Implement avatar display
@@ -44,6 +60,7 @@ Story Points: 5
    4. - [ ] Test profile viewing functionality
 
 4. - [ ] Implement Profile Edit UI
+     > Blocked by Story-4: Waiting for form handling patterns
 
    1. - [ ] Create profile edit form component
    2. - [ ] Implement form validation with shadcn/ui components
@@ -51,6 +68,7 @@ Story Points: 5
    4. - [ ] Test profile editing functionality
 
 5. - [ ] Implement Avatar Management
+     > Blocked by Story-4: Waiting for file upload standards
 
    1. - [ ] Create avatar upload component
    2. - [ ] Implement image cropping and resizing
@@ -58,10 +76,31 @@ Story Points: 5
    4. - [ ] Test avatar management
 
 6. - [ ] Create User Preferences Section
+     > Blocked by Story-4: Waiting for state management patterns
+
    1. - [ ] Define user preference options
    2. - [ ] Create preferences UI components
    3. - [ ] Implement preference saving functionality
    4. - [ ] Test user preferences
+
+## Unblock Criteria
+
+1. Story-4 Completion Requirements:
+
+   - Export pattern standardization ✅
+   - CSS architecture documentation 🚧
+   - Project structure reorganization 🚧
+   - Component creation guidelines 🚧
+   - Testing standards 🚧
+   - State management patterns 🚧
+
+2. Technical Prerequisites:
+   - Feature-based directory structure
+   - Documented component patterns
+   - Established testing approach
+   - Form handling guidelines
+   - File upload standards
+   - State management best practices
 
 ## Constraints
 

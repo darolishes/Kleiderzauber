@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
-import { LoginForm, RegisterForm, ResetPasswordForm } from "../components/auth";
+import { useAuthStore } from "@/store/authStore";
+import { LoginForm, RegisterForm, ResetPasswordForm } from "@/features/auth";
 
 type AuthTab = "login" | "register" | "reset";
 
-const Auth: React.FC = () => {
+export const Auth: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<AuthTab>("login");
   const navigate = useNavigate();
@@ -121,5 +121,3 @@ const Auth: React.FC = () => {
     </div>
   );
 };
-
-export default Auth;

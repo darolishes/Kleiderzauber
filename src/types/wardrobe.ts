@@ -1,33 +1,31 @@
 export interface ClothingItem {
   id: string;
-  user_id: string;
-  image_url: string;
-  thumbnail_url: string;
-  brand: string;
-  size: string;
-  color: string;
-  material: string;
-  purchase_date: string;
-  price: number;
-  care_instructions: string;
-  notes: string;
-  categories: string[];
-  subcategories: string[];
-  seasons: string[];
-  occasions: string[];
+  name: string;
+  category: string;
+  imageUrl: string;
   tags: string[];
-  created_at: string;
-  updated_at: string;
+  season: string[];
+  color: string;
+  dateAdded: string;
+  metadata?: Record<string, unknown>;
 }
 
-export type Category = 'Tops' | 'Bottoms' | 'Outerwear' | 'Shoes' | 'Accessories';
-export type Season = 'Spring' | 'Summer' | 'Fall' | 'Winter';
-export type Occasion = 'Casual' | 'Work' | 'Formal' | 'Sport' | 'Special';
+export interface WardrobeState {
+  items: ClothingItem[];
+  loading: boolean;
+  error: string | null;
+  filters: WardrobeFilters;
+}
 
 export interface WardrobeFilters {
-  categories: Category[];
-  seasons: Season[];
-  occasions: Occasion[];
+  categories: string[];
+  seasons: string[];
+  colors: string[];
   tags: string[];
-  search: string;
+}
+
+export interface ItemCardProps {
+  item: ClothingItem;
+  onEdit: (item: ClothingItem) => void;
+  onDelete?: (id: string) => void;
 }

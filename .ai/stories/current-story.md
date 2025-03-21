@@ -1,6 +1,18 @@
 # Current Story Reference
 
-This file serves as a reference to the currently active story.
+The current active story is [Story-4: Project Structure Refactoring and Best Practices Implementation](./story-4-project-structure-refactoring.story.md).
+
+## Quick Status
+
+- Story Points: 3
+- Status: In Progress
+- Current Focus: Export pattern standardization and CSS architecture
+- Dependencies: None (refactoring existing code)
+- Next Story: Story-3 (User Profile Management)
+
+## Current Phase
+
+Infrastructure and Standards Implementation
 
 ## Active Story
 
