@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Filter, Grid, List } from "lucide-react";
 import { useWardrobeStore } from "@/store/wardrobeStore";
-import { UploadZone, ItemCard } from "@/features/wardrobe";
+import { UploadZone, ItemCard } from "@/components/wardrobe";
 import type { ClothingItem } from "@/types/wardrobe";
 
 export const Wardrobe: React.FC = () => {

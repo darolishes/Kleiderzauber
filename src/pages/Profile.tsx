@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, ProfileForm } from "@/features/profile";
+import { Avatar, ProfileForm } from "@/components/profile";
 
 export const Profile: React.FC = () => {
   return (

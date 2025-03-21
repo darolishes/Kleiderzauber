@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "@store/authStore";
-import { ThemeToggle } from "@features/theme";
+import { useAuthStore } from "@/store/authStore";
+import { ThemeToggle } from "@/components/theme";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,80 +30,79 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 flex">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
-            <span className="text-xl font-bold">Kleiderzauber</span>
-          </Link>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className="transition-colors hover:text-foreground/80 text-foreground/60"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-2">
-            <ThemeToggle />
-            {user ? (
-              <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
-                      <span className="sr-only">User menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="w-full">
-                        Profile
+        <Link to="/" className="text-xl font-bold mr-6">
+          Kleiderzauber
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          {navigationItems.map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              className="hover:text-foreground/80 text-foreground/60"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
+          {user ? (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">User menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="w-full">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Log Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right">
+                  <SheetHeader>
+                    <SheetTitle>Navigation</SheetTitle>
+                  </SheetHeader>
+                  <nav className="grid gap-4 py-4">
+                    {navigationItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className="text-sm font-medium hover:text-primary"
+                      >
+                        {item.label}
                       </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogout}>
-                      Log Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="md:hidden">
-                      <Menu className="h-5 w-5" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right">
-                    <SheetHeader>
-                      <SheetTitle>Navigation</SheetTitle>
-                    </SheetHeader>
-                    <div className="grid gap-4 py-4">
-                      {navigationItems.map((item) => (
-                        <Link
-                          key={item.href}
-                          to={item.href}
-                          className="text-sm font-medium transition-colors hover:text-primary"
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </>
-            ) : (
-              <Button asChild>
-                <Link to="/auth">Log In</Link>
-              </Button>
-            )}
-          </nav>
+                    ))}
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </>
+          ) : (
+            <Button asChild>
+              <Link to="/auth">Log In</Link>
+            </Button>
+          )}
         </div>
       </div>
     </nav>

@@ -1,14 +1,19 @@
-export const navigationItems = [
+interface NavItem {
+  href: string;
+  label: string;
+}
+
+export const navigationItems: NavItem[] = [
   {
-    label: "Wardrobe",
     href: "/wardrobe",
+    label: "Wardrobe",
   },
   {
-    label: "Outfits",
     href: "/outfits",
+    label: "Outfits",
   },
   {
-    label: "Try On",
     href: "/try-on",
+    label: "Try On",
   },
-] as const;
+];
