@@ -1,13 +1,13 @@
 import { create } from "zustand";
-import { supabase } from "../lib/supabase";
-import { toast } from "react-hot-toast";
+import { toast } from "@/hooks/ui/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface Profile {
   id: string;
-  email: string | undefined;
-  full_name: string | null;
-  avatar_url: string | null;
-  updated_at: string | null;
+  email: string;
+  full_name?: string;
+  avatar_url?: string;
+  updated_at?: string;
 }
 
 interface ProfileState {
@@ -17,9 +17,7 @@ interface ProfileState {
 
   // Data operations
   fetchProfile: () => Promise<void>;
-  updateProfile: (
-    updates: Partial<Omit<Profile, "id" | "email">>
-  ) => Promise<void>;
+  updateProfile: (data: Partial<Profile>) => Promise<void>;
   uploadAvatar: (file: File) => Promise<string | null>;
 
   // State management
@@ -33,85 +31,57 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   error: null,
 
   fetchProfile: async () => {
+    set({ isLoading: true, error: null });
     try {
-      set({ isLoading: true, error: null });
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
-
-      const { data, error } = await supabase
-        .from("users")
+      const { data: profile, error } = await supabase
+        .from("profiles")
         .select("*")
-        .eq("id", user.id)
         .single();
 
       if (error) throw error;
 
-      set({
-        profile: {
-          id: user.id,
-          email: user.email,
-          full_name: data?.full_name || null,
-          avatar_url: data?.avatar_url || null,
-          updated_at: data?.updated_at || null,
-        },
-        isLoading: false,
-      });
+      set({ profile, isLoading: false });
     } catch (error) {
-      console.error("Error fetching profile:", error);
-      set({
-        error:
-          error instanceof Error ? error.message : "Failed to fetch profile",
-        isLoading: false,
+      const message =
+        error instanceof Error ? error.message : "Failed to fetch profile";
+      set({ error: message, isLoading: false });
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
       });
     }
   },
 
-  updateProfile: async (updates) => {
+  updateProfile: async (data) => {
+    set({ isLoading: true, error: null });
     try {
-      set({ isLoading: true, error: null });
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
-
       const { error } = await supabase
-        .from("users")
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
+        .from("profiles")
+        .update(data)
+        .eq("id", data.id);
 
       if (error) throw error;
 
-      // Update local state
-      const profile = get().profile;
-      set({
-        profile: profile
-          ? { ...profile, ...updates, updated_at: new Date().toISOString() }
-          : null,
+      set((state) => ({
+        profile: state.profile ? { ...state.profile, ...data } : null,
         isLoading: false,
-      });
+      }));
 
-      toast.success("Profile updated successfully");
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      set({
-        error:
-          error instanceof Error ? error.message : "Failed to update profile",
-        isLoading: false,
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+        variant: "default",
       });
-      toast.error("Failed to update profile");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update profile";
+      set({ error: message, isLoading: false });
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
     }
   },
 
@@ -162,7 +132,11 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
       await get().updateProfile({ avatar_url: avatarUrl });
 
       set({ isLoading: false });
-      toast.success("Avatar uploaded successfully");
+      toast({
+        title: "Success",
+        description: "Avatar uploaded successfully",
+        variant: "default",
+      });
       return avatarUrl;
     } catch (error) {
       console.error("Error uploading avatar:", error);
@@ -171,9 +145,12 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
           error instanceof Error ? error.message : "Failed to upload avatar",
         isLoading: false,
       });
-      toast.error(
-        error instanceof Error ? error.message : "Failed to upload avatar"
-      );
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to upload avatar",
+        variant: "destructive",
+      });
       return null;
     }
   },

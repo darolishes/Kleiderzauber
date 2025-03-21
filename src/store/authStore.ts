@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { User, Session, AuthError, AuthResponse } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
-import { toast } from "react-hot-toast";
+import { supabase } from "@/lib/supabase";
+import { toast } from "@/hooks/ui/use-toast";
 
 interface AuthState {
   user: User | null;
@@ -63,11 +63,19 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
 
-      toast.success("Logged in successfully!");
+      toast({
+        title: "Success",
+        description: "Logged in successfully!",
+        variant: "default",
+      });
     } catch (error) {
       const errorMessage = handleAuthError(error as AuthError);
       set({ error: errorMessage, isLoading: false });
-      toast.error(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   },
 
@@ -89,16 +97,27 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       // Check if email confirmation is required
       if (data?.user?.identities?.length === 0) {
-        toast.success(
-          "Registration successful! Please check your email to confirm your account."
-        );
+        toast({
+          title: "Success",
+          description:
+            "Registration successful! Please check your email to confirm your account.",
+          variant: "default",
+        });
       } else {
-        toast.success("Registration successful!");
+        toast({
+          title: "Success",
+          description: "Registration successful!",
+          variant: "default",
+        });
       }
     } catch (error) {
       const errorMessage = handleAuthError(error as AuthError);
       set({ error: errorMessage, isLoading: false });
-      toast.error(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   },
 
@@ -114,14 +133,22 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
 
-      toast.success("Logged out successfully!");
+      toast({
+        title: "Success",
+        description: "Logged out successfully!",
+        variant: "default",
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error
           ? error.message
           : "An error occurred during logout";
       set({ error: errorMessage, isLoading: false });
-      toast.error(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   },
 
@@ -135,14 +162,22 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (error) throw error;
 
       set({ isLoading: false });
-      toast.success("Password reset link sent to your email!");
+      toast({
+        title: "Success",
+        description: "Password reset link sent to your email!",
+        variant: "default",
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error
           ? error.message
           : "An error occurred during password reset";
       set({ error: errorMessage, isLoading: false });
-      toast.error(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   },
 
