@@ -1,0 +1,169 @@
+---
+description: USE ALWAYS when working with project documentation to maintain consistent knowledge and agile workflow
+globs: .ai/**/*.md
+alwaysApply: false
+---
+
+# Memory Bank & Agile Integration
+
+## Context
+- When initializing new projects or features
+- When documenting project progress and architecture
+- When transitioning between development sessions
+- When managing project knowledge across time
+- When starting ANY task (MUST read ALL relevant files)
+- When beginning or ending a development session
+
+## Requirements
+- Store all project documentation in the `.ai` folder with a clear structure
+- Use stories as the central focus of development work
+- Update documentation at specific trigger points (especially session start/end)
+- Follow sequential workflow for project initialization and development
+- Use consistent templates for all documentation
+- Read ALL relevant files at the start of EVERY task
+- Follow TDD approach for all implementation work
+- Run and document all test results before completing stories
+
+## Structure
+```
+.ai/
+├── project/                # Core project documentation
+│   ├── 01-prd.md          # Project Requirements Document
+│   ├── 02-arch.md         # Architecture documentation
+│   ├── 03-structure.md    # Project structure documentation
+│   └── 04-deployment.md   # Deployment configuration
+├── stories/               # Central development focus
+│   ├── story-1-login.story.md
+│   ├── story-2-profile.story.md
+│   └── current-story.md   # Symlink or reference to active story
+├── status/                # Session management
+│   ├── YYYY-MM-DD.md      # Daily status updates
+│   └── active-context.md  # Current task and decisions
+├── artifacts/             # Project artifacts
+│   ├── diagrams/         # Visual representations
+│   ├── specs/            # Detailed specifications
+│   └── tests/            # Test strategies
+└── README.md             # Overview of .ai structure and usage
+```
+
+## Templates
+The following standardized templates MUST be used:
+
+1. **Project Requirements Document** (.ai/project/01-prd.md)
+   - Use template: `.cursor/templates/template-prd.md`
+   - Must include: Introduction, Goals, Features, Epic Structure, Story List
+   - Requires "status: approved" before proceeding
+
+2. **Architecture** (.ai/project/02-arch.md)
+   - Use template: `.cursor/templates/template-arch.md`
+   - Must include: Technical Summary, Technology Table, Diagrams, Project Structure
+   - Requires "status: approved" before proceeding
+
+3. **Stories** (.ai/stories/story-N-short-description.story.md)
+   - Use template: `.cursor/templates/template-story.md`
+   - Must include: User Story format, Status, Tasks, Estimation
+   - Tasks must follow TDD approach (tests first)
+   - Each story must be approved before implementation
+   - Stories are the PRIMARY working documents
+
+4. **Status Update** (.ai/status/YYYY-MM-DD.md)
+   - Created at the end of each development session
+   - Documents: Development Steps, Key Decisions, Next Steps
+   - References current and next stories
+   - Replaces redundant progress tracking
+
+5. **Active Context** (.ai/status/active-context.md)
+   - Updated at the beginning and end of each session
+   - Contains current focus, decisions, and challenges
+   - Always references the current story
+
+## File Naming Conventions
+- Use kebab-case for all documentation files
+- Add numerical prefixes (01-, 02-) for files with sequential relationships
+- Use descriptive names that reflect content
+- Stories should follow the format: `story-N-short-description.story.md`
+- Status updates should follow the format: `YYYY-MM-DD.md`
+
+## Session Management
+
+### Start Session Process
+```mermaid
+flowchart TD
+    Start[Start Session] --> ReadStatus[Read latest status update]
+    ReadStatus --> CheckStory[Identify current story]
+    CheckStory --> ReadContext[Read active-context.md]
+    ReadContext --> ReadStory[Read current story in detail]
+    ReadStory --> ReadRelevant[Read other relevant files]
+    ReadRelevant --> BeginWork[Begin development work]
+```
+
+### End Session Process
+```mermaid
+flowchart TD
+    End[End Session] --> UpdateStory[Update current story status]
+    UpdateStory --> CreateStatus[Create new status/YYYY-MM-DD.md]
+    CreateStatus --> DocumentSteps[Document development steps]
+    DocumentSteps --> DocumentDecisions[Document key decisions]
+    DocumentDecisions --> DocumentNext[Document next steps]
+    DocumentNext --> UpdateContext[Update active-context.md]
+```
+
+### Status Update Template
+```markdown
+# Status Update: YYYY-MM-DD
+
+## Development Steps
+1. `path/to/file.ts`: What was changed
+   - Details of the change
+   - Purpose of the change
+
+## Key Decisions
+- Decision 1: Rationale and trade-offs
+- Decision 2: Rationale and trade-offs
+
+## Next Steps
+1. Continue Story X: Specific tasks
+2. Prepare Story Y: Clarify requirements
+3. Address potential challenges
+
+## Story References
+- Current Story: [Story Title](../stories/story-N-title.story.md)
+- Next Story: [Story Title](../stories/story-M-title.story.md)
+```
+
+## Examples
+<example>
+✅ Starting a session with `start-session` to review latest status
+✅ Creating a new project with `.ai/project/01-prd.md` first, using template-prd.md
+✅ Making stories the central focus of all development work
+✅ Creating status updates at the end of each session
+✅ Following TDD by writing tests before implementation
+✅ Creating stories with proper format: "As a ___, I want ___, so that ___"
+✅ Ending a session with `end-session` to document progress
+</example>
+
+<example type="invalid">
+❌ Starting a task without reviewing the current story and status
+❌ Starting development without completing 01-prd.md and getting approval
+❌ Creating inconsistent documentation structures
+❌ Creating documentation without using the required templates
+❌ Using inconsistent file naming (mixing camelCase and kebab-case)
+❌ Ending a session without creating a status update
+❌ Marking stories as complete without all tests passing
+❌ Working without referencing the current story
+</example>
+
+## Critical Rules
+  - STORIES are the PRIMARY working documents and central focus of development
+  - Start each session with `start-session` to review latest status and current story
+  - End each session with `end-session` to document progress and next steps
+  - Always initialize project with complete 01-prd.md before starting development
+  - 01-prd.md and 02-arch.md must have "status: approved" before proceeding with stories
+  - MUST use established templates (.cursor/templates/*) for all documentation
+  - MUST follow file naming conventions (kebab-case with numerical prefixes where appropriate)
+  - Update active-context.md at every session transition
+  - Create daily status updates to track progress (replaces redundant progress tracking)
+  - Follow sequential workflow: prd → arch → stories → implementation
+  - Follow TDD approach: write tests first, then implement, ensure tests pass
+  - Create stories in proper format: "As a ___, I want ___, so that ___"
+  - Never mark a story complete until all tests pass and documentation is updated

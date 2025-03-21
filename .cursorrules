@@ -1,0 +1,50 @@
+# Kleiderzauber Project Rules
+
+## Project Patterns
+
+- Use functional components with TypeScript for all React components
+- Implement component-specific styles with Tailwind CSS utilities
+- Organize components in dedicated folders with related files
+- Use Zustand stores for global state management
+- Follow the pattern of separating UI components from data/logic
+- Use React Router for navigation and route protection
+- Implement responsive design with mobile-first approach
+- Use custom hooks to extract and reuse complex logic
+
+## User Preferences
+
+- Clean, modern UI with consistent spacing
+- Descriptive variable and function names
+- Component files named with PascalCase
+- Utility files named with camelCase
+- Consistent code formatting with ESLint and TypeScript
+- Detailed comments for complex logic
+- Responsive designs that work well on all device sizes
+
+## Known Challenges
+
+- Canvas API has different behaviors across browsers
+- Image manipulation performance can be slow on mobile devices
+- Large image files need optimization before storage
+- Complex state management for outfit composition
+- Ensuring consistent auth behavior with Supabase
+
+## Implementation Paths
+
+- Authentication: Leverage Supabase Auth UI for login/signup
+- File Upload: Use React Dropzone + browser-image-compression
+- State Management: Zustand stores organized by feature
+- Image Manipulation: Canvas API with custom controls
+- Responsive Design: Tailwind breakpoints for different viewports
+
+## Tool Usage
+
+- Vite for fast development and optimized builds
+- TypeScript for type safety
+- ESLint for code quality
+- Tailwind CSS for styling
+- Supabase for backend services
+- React Router for navigation
+- React Hot Toast for notifications
+
+_Note: This file serves as a learning journal for the project. It captures important patterns, preferences, and project intelligence that help work more effectively. Update as new insights are discovered._

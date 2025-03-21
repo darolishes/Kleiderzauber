@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "duckduckgo-mcp-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@nickclyde/duckduckgo-mcp-server",
+        "--config",
+        "{}"
+      ]
+    },
+    "openrouterai": {
+      "command": "npx",
+      "args": ["@mcpservers/openrouterai"],
+      "env": {
+        "OPENROUTER_API_KEY": "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",
+        "OPENROUTER_DEFAULT_MODEL": "open-r1/olympiccoder-32b:free"
+      }
+    },
+    "mcp-knowledge-graph": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@itseasy21/mcp-knowledge-graph",
+        "--config",
+        "{}"
+      ]
+    },
+    "webmcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@jasonjmcghee/webmcp",
+        "--config",
+        "{}"
+      ]
+    }
+  }
+}
