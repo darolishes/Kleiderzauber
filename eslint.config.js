@@ -47,7 +47,7 @@ export default tseslint.config(
                 "Use path aliases instead of relative imports outside current directory.",
             },
             {
-              group: ["@features/*/components/*", "@features/*/utils/*"],
+              group: ["@features/*/components/*", "@components/*/utils/*"],
               message: "Import from feature barrel file instead.",
             },
           ],

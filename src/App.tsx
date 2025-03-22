@@ -12,6 +12,7 @@ import { Wardrobe } from "@/pages/Wardrobe";
 import { Outfits } from "@/pages/Outfits";
 import { TryOn } from "@/pages/TryOn";
 import { Profile } from "@/pages/Profile";
+import { PreferencesPage } from "@/pages/Preferences";
 import { NotFound } from "@/pages/NotFound";
 import { ThemeProvider } from "@/components/theme";
 import { Toaster } from "@/components/ui/toaster";
@@ -106,6 +107,14 @@ export function App() {
                 element={
                   <RequireAuth>
                     <Profile />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="preferences"
+                element={
+                  <RequireAuth>
+                    <PreferencesPage />
                   </RequireAuth>
                 }
               />

@@ -3,6 +3,8 @@ import { useDropzone } from "react-dropzone";
 import ReactCrop, { Crop } from "react-image-crop";
 import imageCompression from "browser-image-compression";
 import { useProfileStore } from "@/store/profileStore";
+import { Avatar } from "@/components/ui/avatar";
+import { Icons } from "@/components/ui/icons";
 import {
   Dialog,
   DialogContent,
@@ -13,12 +15,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/ui/use-toast";
+import { cn } from "@/lib/utils";
 import "react-image-crop/dist/ReactCrop.css";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif"];
 
 interface AvatarUploadProps {
+  currentAvatarUrl?: string | null;
   onUploadSuccess?: (url: string) => void;
   onUploadError?: (error: Error) => void;
   onDeleteSuccess?: () => void;
@@ -27,6 +31,7 @@ interface AvatarUploadProps {
 }
 
 export function AvatarUpload({
+  currentAvatarUrl,
   onUploadSuccess,
   onUploadError,
   onDeleteSuccess,
@@ -85,12 +90,19 @@ export function AvatarUpload({
     [onUploadError]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
     onDrop,
     accept: {
       "image/*": ACCEPTED_IMAGE_TYPES,
     },
     maxFiles: 1,
+    disabled: uploadProgress.phase !== "idle",
   });
 
   const processAndUploadImage = async () => {
@@ -126,7 +138,7 @@ export function AvatarUpload({
       });
 
       // Compress image
-      setUploadProgress({ progress: 0, phase: "compressing" });
+      setUploadProgress({ phase: "compressing", progress: 0 });
       const compressedFile = await imageCompression(
         new File([blob], "avatar.jpg", { type: "image/jpeg" }),
         {
@@ -135,8 +147,8 @@ export function AvatarUpload({
           useWebWorker: true,
           onProgress: (progress) => {
             setUploadProgress({
-              progress: Math.round(progress * 100),
               phase: "compressing",
+              progress: Math.round(progress * 100),
             });
           },
         }
@@ -144,12 +156,14 @@ export function AvatarUpload({
 
       // Upload to Supabase
       const avatarUrl = await uploadAvatar(compressedFile);
-      onUploadSuccess?.(avatarUrl);
-      setIsOpen(false);
-      toast({
-        title: "Success",
-        description: "Avatar uploaded successfully",
-      });
+      if (avatarUrl) {
+        onUploadSuccess?.(avatarUrl);
+        setIsOpen(false);
+        toast({
+          title: "Success",
+          description: "Avatar uploaded successfully",
+        });
+      }
     } catch (error) {
       console.error("Error uploading image:", error);
       onUploadError?.(error as Error);
@@ -199,27 +213,68 @@ export function AvatarUpload({
   };
 
   return (
-    <div className="space-y-4">
-      <div
-        {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
-          isDragActive
-            ? "border-primary bg-primary/10"
-            : "border-muted-foreground/20"
-        }`}
-      >
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <p>Drop the image here...</p>
-        ) : (
-          <p>Drag and drop an image here, or click to select</p>
-        )}
-        <p className="text-sm text-muted-foreground mt-2">
-          JPEG, PNG or GIF (max. 5MB)
-        </p>
+    <div className="space-y-6">
+      <div className="flex items-center gap-6">
+        <Avatar
+          src={currentAvatarUrl}
+          alt="Profile picture"
+          size="xl"
+          isLoading={uploadProgress.phase !== "idle"}
+        />
+        <div className="flex-1">
+          <div
+            {...getRootProps()}
+            className={cn(
+              "relative border-2 border-dashed rounded-lg p-4 transition-all duration-150 ease-in-out",
+              {
+                "border-primary/50 bg-primary/5": isDragActive && !isDragReject,
+                "border-destructive/50 bg-destructive/5": isDragReject,
+                "border-muted-foreground/20 hover:border-primary/50 hover:bg-primary/5":
+                  !isDragActive && !isDragReject,
+                "opacity-50 cursor-not-allowed":
+                  uploadProgress.phase !== "idle",
+              }
+            )}
+          >
+            <input {...getInputProps()} />
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div
+                className={cn(
+                  "p-2 rounded-full transition-colors",
+                  isDragActive && !isDragReject
+                    ? "bg-primary/10 text-primary"
+                    : isDragReject
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-muted"
+                )}
+              >
+                <Icons.upload className="w-6 h-6" />
+              </div>
+              {isDragActive ? (
+                isDragReject ? (
+                  <p className="text-sm text-destructive">
+                    This file type is not supported
+                  </p>
+                ) : (
+                  <p className="text-sm">Drop the image here...</p>
+                )
+              ) : (
+                <>
+                  <p className="text-sm">
+                    <span className="font-medium">Click to upload</span> or drag
+                    and drop
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    JPEG, PNG or GIF (max. 5MB)
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {showDeleteButton && (
+      {showDeleteButton && currentAvatarUrl && (
         <Button
           variant="outline"
           className="w-full"
@@ -228,6 +283,16 @@ export function AvatarUpload({
         >
           Delete Avatar
         </Button>
+      )}
+
+      {uploadProgress.phase !== "idle" && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>{getProgressMessage()}</span>
+            <span>{uploadProgress.progress}%</span>
+          </div>
+          <Progress value={uploadProgress.progress} />
+        </div>
       )}
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -249,38 +314,24 @@ export function AvatarUpload({
                 <img
                   ref={imageRef}
                   src={selectedImage}
-                  alt="Upload preview"
-                  className="max-h-[400px] w-auto"
+                  alt="Avatar preview"
+                  className="max-h-[400px] w-auto mx-auto"
                 />
               </ReactCrop>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setSelectedImage(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={processAndUploadImage}>Upload</Button>
+              </div>
             </div>
           )}
-          {uploadProgress.progress > 0 && (
-            <div className="mt-4">
-              <Progress value={uploadProgress.progress} className="w-full" />
-              <p className="text-sm text-center mt-2">{getProgressMessage()}</p>
-            </div>
-          )}
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsOpen(false);
-                if (selectedImage) {
-                  URL.revokeObjectURL(selectedImage);
-                  setSelectedImage(null);
-                }
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={processAndUploadImage}
-              disabled={uploadProgress.phase !== "idle"}
-            >
-              Upload
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
