@@ -1,31 +1,33 @@
 import { create } from "zustand";
 import { supabase } from "@/lib/supabase";
-import type { ClothingItem, WardrobeFilters } from "@/types/wardrobe";
+import type {
+  ClothingItem,
+  WardrobeFilters,
+  WardrobeState,
+} from "@/types/wardrobe";
 import { compressImage } from "@/utils/helpers/imageProcessing";
 import { toast } from "@/hooks/ui/use-toast";
 
-interface WardrobeState {
-  items: ClothingItem[];
-  filters: WardrobeFilters;
-  loading: boolean;
-  error: string | null;
-  uploadItems: (files: File[]) => Promise<void>;
-  updateItem: (id: string, data: Partial<ClothingItem>) => Promise<void>;
-  deleteItem: (id: string) => Promise<void>;
+interface WardrobeStore extends WardrobeState {
   fetchItems: () => Promise<void>;
+  createItem: (item: Partial<ClothingItem>) => Promise<void>;
+  updateItem: (id: string, item: Partial<ClothingItem>) => Promise<void>;
+  deleteItem: (id: string) => Promise<void>;
   setFilters: (filters: Partial<WardrobeFilters>) => void;
+  uploadItems: (files: File[]) => Promise<void>;
 }
 
-export const useWardrobeStore = create<WardrobeState>((set, get) => ({
+export const useWardrobeStore = create<WardrobeStore>((set, get) => ({
   items: [],
+  loading: false,
+  error: null,
   filters: {
     categories: [],
     colors: [],
     seasons: [],
-    search: "",
+    brands: [],
+    sizes: [],
   },
-  loading: false,
-  error: null,
 
   uploadItems: async (files: File[]) => {
     set({ loading: true, error: null });
@@ -82,68 +84,6 @@ export const useWardrobeStore = create<WardrobeState>((set, get) => ({
     }
   },
 
-  updateItem: async (id: string, data: Partial<ClothingItem>) => {
-    set({ loading: true, error: null });
-    try {
-      const { error } = await supabase
-        .from("clothing_items")
-        .update({ ...data, updated_at: new Date().toISOString() })
-        .eq("id", id);
-
-      if (error) throw error;
-
-      await get().fetchItems();
-      toast({
-        title: "Success",
-        description: "Item updated successfully",
-        variant: "default",
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update item";
-      set({ error: message });
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
-    } finally {
-      set({ loading: false });
-    }
-  },
-
-  deleteItem: async (id: string) => {
-    set({ loading: true, error: null });
-    try {
-      const { error } = await supabase
-        .from("clothing_items")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-
-      set((state) => ({
-        items: state.items.filter((item) => item.id !== id),
-      }));
-      toast({
-        title: "Success",
-        description: "Item deleted successfully",
-        variant: "default",
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to delete item";
-      set({ error: message });
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
-    } finally {
-      set({ loading: false });
-    }
-  },
-
   fetchItems: async () => {
     set({ loading: true, error: null });
     try {
@@ -169,9 +109,75 @@ export const useWardrobeStore = create<WardrobeState>((set, get) => ({
     }
   },
 
-  setFilters: (filters) => {
+  createItem: async (item: Partial<ClothingItem>) => {
+    set({ loading: true, error: null });
+    try {
+      const newItem: ClothingItem = {
+        id: Date.now().toString(),
+        name: item.name || "",
+        description: item.description,
+        category: item.category || "Tops",
+        color: item.color || "",
+        size: item.size || "",
+        brand: item.brand,
+        seasons: item.seasons || [],
+        imageUrls: item.imageUrls || [],
+        thumbnailUrls: item.thumbnailUrls || [],
+        imageDimensions: item.imageDimensions,
+        tags: item.tags || [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const items = [...get().items, newItem];
+      set({ items });
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : "Unknown error" });
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  updateItem: async (id: string, item: Partial<ClothingItem>) => {
+    set({ loading: true, error: null });
+    try {
+      const items = get().items.map((existingItem) =>
+        existingItem.id === id
+          ? {
+              ...existingItem,
+              ...item,
+              updatedAt: new Date().toISOString(),
+            }
+          : existingItem
+      );
+      set({ items });
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : "Unknown error" });
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  deleteItem: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      const items = get().items.filter((item) => item.id !== id);
+      set({ items });
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : "Unknown error" });
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  setFilters: (filters: Partial<WardrobeFilters>) => {
     set((state) => ({
-      filters: { ...state.filters, ...filters },
+      filters: {
+        ...state.filters,
+        ...filters,
+      },
     }));
   },
 }));

@@ -65,7 +65,9 @@ Story-3: Implement User Profile Management (.ai/stories/story-3-user-profile-man
 
 ## Next Story
 
-TBD - To be decided after project review
+Story-6: Wardrobe Item Management Foundation (.ai/stories/story-6-wardrobe-item-management.story.md)
+
+This story will initiate Epic-2 (Virtual Wardrobe Management) and implement the core functionality for managing clothing items in the digital wardrobe.
 
 ## Story Status
 

@@ -1,61 +1,157 @@
 import React, { useEffect, useState } from "react";
-import { Filter, Grid, List } from "lucide-react";
+import { Filter, Grid, List, Plus } from "lucide-react";
 import { useWardrobeStore } from "@/store/wardrobeStore";
-import { UploadZone, ItemCard } from "@/components/wardrobe";
-import type { ClothingItem } from "@/types/wardrobe";
+import {
+  UploadZone,
+  ItemCard,
+  ItemGrid,
+  ItemFilters,
+  ItemDetails,
+  ItemForm,
+} from "@/components/wardrobe";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type { ClothingItem, WardrobeFilters } from "@/types/wardrobe";
 
 export const Wardrobe: React.FC = () => {
-  const { items, loading, fetchItems } = useWardrobeStore();
+  const { items, loading, fetchItems, createItem, updateItem } =
+    useWardrobeStore();
   const [selectedItem, setSelectedItem] = useState<ClothingItem | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<WardrobeFilters>({
+    categories: [],
+    colors: [],
+    seasons: [],
+    brands: [],
+    sizes: [],
+  });
 
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
 
-  const handleEditItem = (item: ClothingItem) => {
+  const handleItemClick = (item: ClothingItem) => {
     setSelectedItem(item);
-    // We'll implement the edit modal later
+    setIsDetailsOpen(true);
   };
 
+  const handleEditItem = (item: ClothingItem) => {
+    setSelectedItem(item);
+    setIsFormOpen(true);
+  };
+
+  const handleCreateItem = () => {
+    setSelectedItem(null);
+    setIsFormOpen(true);
+  };
+
+  const handleFiltersChange = (filters: WardrobeFilters) => {
+    setActiveFilters(filters);
+    // TODO: Apply filters to items query
+  };
+
+  const handleUpload = async (files: File[]) => {
+    // TODO: Implement file upload and item creation
+    console.log("Files to upload:", files);
+  };
+
+  const handleFormSubmit = async (data: ClothingItem) => {
+    try {
+      if (selectedItem) {
+        await updateItem(selectedItem.id, data);
+      } else {
+        await createItem(data);
+      }
+      setIsFormOpen(false);
+      fetchItems();
+    } catch (error) {
+      console.error("Error saving item:", error);
+    }
+  };
+
+  const filteredItems = items; // TODO: Implement actual filtering logic
+
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">My Wardrobe</h1>
         <div className="flex items-center space-x-4">
-          <button
-            className="p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-            onClick={() => {}} // We'll implement filters later
-          >
-            <Filter className="h-5 w-5" />
-          </button>
+          <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className={isFiltersOpen ? "text-primary" : "text-gray-500"}
+              >
+                <Filter className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+              </SheetHeader>
+              <div className="py-4">
+                <ItemFilters
+                  filters={activeFilters}
+                  onChange={handleFiltersChange}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+
           <div className="border-l border-gray-200 h-6" />
-          <button
-            className={`p-2 rounded-md hover:bg-gray-100 ${
-              viewMode === "grid" ? "text-indigo-600" : "text-gray-500"
-            }`}
+
+          <Button
+            variant="outline"
+            size="icon"
+            className={viewMode === "grid" ? "text-primary" : "text-gray-500"}
             onClick={() => setViewMode("grid")}
           >
             <Grid className="h-5 w-5" />
-          </button>
-          <button
-            className={`p-2 rounded-md hover:bg-gray-100 ${
-              viewMode === "list" ? "text-indigo-600" : "text-gray-500"
-            }`}
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className={viewMode === "list" ? "text-primary" : "text-gray-500"}
             onClick={() => setViewMode("list")}
           >
             <List className="h-5 w-5" />
-          </button>
+          </Button>
+
+          <div className="border-l border-gray-200 h-6" />
+
+          <Button onClick={handleCreateItem}>
+            <Plus className="h-5 w-5 mr-2" />
+            Add Item
+          </Button>
         </div>
       </div>
 
-      <UploadZone />
+      {/* Upload Zone */}
+      <UploadZone onUpload={handleUpload} />
 
+      {/* Content */}
       {loading ? (
         <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      ) : items.length === 0 ? (
+      ) : filteredItems.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No items in your wardrobe yet.</p>
           <p className="text-sm text-gray-400">
@@ -63,18 +159,44 @@ export const Wardrobe: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div
-          className={
-            viewMode === "grid"
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-              : "space-y-4"
-          }
-        >
-          {items.map((item) => (
-            <ItemCard key={item.id} item={item} onEdit={handleEditItem} />
-          ))}
-        </div>
+        <ItemGrid
+          items={filteredItems}
+          viewMode={viewMode}
+          onItemClick={handleItemClick}
+          onEditItem={handleEditItem}
+        />
       )}
+
+      {/* Item Details Modal */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Item Details</DialogTitle>
+          </DialogHeader>
+          {selectedItem && (
+            <ItemDetails
+              item={selectedItem}
+              onEdit={() => {
+                setIsDetailsOpen(false);
+                handleEditItem(selectedItem);
+              }}
+              onClose={() => setIsDetailsOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Item Form Modal */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedItem ? "Edit Item" : "Add New Item"}
+            </DialogTitle>
+          </DialogHeader>
+          <ItemForm item={selectedItem} onSubmit={handleFormSubmit} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

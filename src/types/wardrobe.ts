@@ -1,12 +1,29 @@
 export interface ClothingItem {
   id: string;
   name: string;
-  category: string;
-  imageUrl: string;
-  tags: string[];
-  season: string[];
+  description?: string;
+  category:
+    | "Tops"
+    | "Bottoms"
+    | "Dresses"
+    | "Outerwear"
+    | "Shoes"
+    | "Accessories";
   color: string;
-  dateAdded: string;
+  size: string;
+  brand?: string;
+  seasons: ("Spring" | "Summer" | "Fall" | "Winter" | "All Season")[];
+  imageUrls: string[];
+  thumbnailUrls: string[];
+  imageDimensions?: Array<{
+    width: number;
+    height: number;
+    size: number;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+  tags: string[];
+  dateAdded?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -19,9 +36,11 @@ export interface WardrobeState {
 
 export interface WardrobeFilters {
   categories: string[];
-  seasons: string[];
   colors: string[];
-  tags: string[];
+  seasons: string[];
+  brands: string[];
+  sizes: string[];
+  search?: string;
 }
 
 export interface ItemCardProps {
