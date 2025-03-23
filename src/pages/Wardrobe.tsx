@@ -27,8 +27,10 @@ import {
 import { toast } from "@/hooks/ui/use-toast";
 import type { ClothingItem, WardrobeFilters } from "@/types/wardrobe";
 import { useState } from "react";
+import { UppyProvider } from "@/components/providers/uppy-provider";
+import { FileUploader } from "@/components/wardrobe/file-uploader";
 
-export function Wardrobe() {
+export default function Wardrobe() {
   const {
     items,
     isLoading,
@@ -44,19 +46,9 @@ export function Wardrobe() {
   const [selectedItem, setSelectedItem] = useState<ClothingItem | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const handleUpload = async (files: File[]) => {
-    try {
-      const urls = await uploadItems(files);
-      setUploadedUrls(urls);
-      setIsFormOpen(true);
-      return urls;
-    } catch (error) {
-      toast({
-        title: "Failed to upload images",
-        variant: "destructive",
-      });
-      return [];
-    }
+  const handleUpload = async (urls: string[]) => {
+    setUploadedUrls(urls);
+    setIsFormOpen(true);
   };
 
   const handleFormSubmit = async (data: Partial<ClothingItem>) => {
@@ -122,32 +114,50 @@ export function Wardrobe() {
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-3xl font-bold">My Wardrobe</h1>
-        <UploadZone onUpload={handleUpload} />
-      </div>
+    <UppyProvider
+      supabaseUrl={import.meta.env.VITE_SUPABASE_URL}
+      supabaseAnonKey={import.meta.env.VITE_SUPABASE_ANON_KEY}
+      bucketName="wardrobe"
+    >
+      <div className="container mx-auto py-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">My Wardrobe</h1>
+          <Button onClick={() => setIsFormOpen(true)}>Add Item</Button>
+        </div>
 
-      <ItemFilters filters={filters} onFilterChange={handleFilterChange} />
+        <ItemFilters filters={filters} onFilterChange={handleFilterChange} />
 
-      <ItemGrid
-        items={items}
-        onSelect={setSelectedItem}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="col-span-full">
+            <FileUploader
+              onUploadComplete={handleUpload}
+              onUploadError={(error) => {
+                toast({
+                  title: "Upload Error",
+                  description: error.message,
+                  variant: "destructive",
+                });
+              }}
+            />
+          </div>
+          <ItemGrid
+            items={items}
+            onSelect={handleEdit}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        </div>
 
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent>
+        {isFormOpen && (
           <ItemForm
-            item={selectedItem}
-            uploadedUrls={uploadedUrls}
-            onSubmit={handleFormSubmit}
             open={isFormOpen}
             onClose={() => setIsFormOpen(false)}
+            onSubmit={handleFormSubmit}
+            item={selectedItem}
+            uploadedUrls={uploadedUrls}
           />
-        </DialogContent>
-      </Dialog>
-    </div>
+        )}
+      </div>
+    </UppyProvider>
   );
 }
