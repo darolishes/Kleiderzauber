@@ -15,7 +15,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import type { WardrobeFilters } from "@/types/wardrobe";
 
 interface ItemFiltersProps {
@@ -24,248 +23,244 @@ interface ItemFiltersProps {
 }
 
 export function ItemFilters({ filters, onFilterChange }: ItemFiltersProps) {
-  const [categoryOpen, setCategoryOpen] = React.useState(false);
-  const [seasonOpen, setSeasonOpen] = React.useState(false);
-  const [colorOpen, setColorOpen] = React.useState(false);
-  const [brandOpen, setBrandOpen] = React.useState(false);
+  const [openCategory, setOpenCategory] = React.useState(false);
+  const [openSeason, setOpenSeason] = React.useState(false);
+  const [openColor, setOpenColor] = React.useState(false);
+  const [openBrand, setOpenBrand] = React.useState(false);
 
   const handleSearchChange = (value: string) => {
     onFilterChange({ searchQuery: value });
   };
 
   const handleCategoryChange = (value: string) => {
-    const newCategories = filters.category.includes(value)
+    const categories = filters.category.includes(value)
       ? filters.category.filter((c) => c !== value)
       : [...filters.category, value];
-    onFilterChange({ category: newCategories });
+    onFilterChange({ category: categories });
   };
 
   const handleSeasonChange = (value: string) => {
-    const newSeasons = filters.seasons.includes(value)
+    const seasons = filters.seasons.includes(value)
       ? filters.seasons.filter((s) => s !== value)
       : [...filters.seasons, value];
-    onFilterChange({ seasons: newSeasons });
+    onFilterChange({ seasons });
   };
 
   const handleColorChange = (value: string) => {
-    const newColors = filters.colors.includes(value)
+    const colors = filters.colors.includes(value)
       ? filters.colors.filter((c) => c !== value)
       : [...filters.colors, value];
-    onFilterChange({ colors: newColors });
+    onFilterChange({ colors });
   };
 
   const handleBrandChange = (value: string) => {
-    const newBrands = filters.brands.includes(value)
+    const brands = filters.brands.includes(value)
       ? filters.brands.filter((b) => b !== value)
       : [...filters.brands, value];
-    onFilterChange({ brands: newBrands });
+    onFilterChange({ brands });
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>Search</Label>
-        <Input
-          placeholder="Search items..."
-          value={filters.searchQuery}
-          onChange={(e) => handleSearchChange(e.target.value)}
-        />
-      </div>
+    <div className="flex flex-col gap-4 md:flex-row md:items-center">
+      <Input
+        placeholder="Search items..."
+        value={filters.searchQuery}
+        onChange={(e) => handleSearchChange(e.target.value)}
+        className="md:w-[200px]"
+      />
 
-      <div className="space-y-2">
-        <Label>Categories</Label>
-        <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={categoryOpen}
-              className="w-full justify-between"
-            >
-              {filters.category.length > 0
-                ? `${filters.category.length} selected`
-                : "Select categories"}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
-            <Command>
-              <CommandInput placeholder="Search categories..." />
-              <CommandEmpty>No category found.</CommandEmpty>
-              <CommandGroup>
-                {[
-                  "Tops",
-                  "Bottoms",
-                  "Dresses",
-                  "Outerwear",
-                  "Shoes",
-                  "Accessories",
-                ].map((category) => (
+      <Popover open={openCategory} onOpenChange={setOpenCategory}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={openCategory}
+            className="justify-between"
+          >
+            {filters.category.length
+              ? `${filters.category.length} categories`
+              : "Category"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandInput placeholder="Search category..." />
+            <CommandEmpty>No category found.</CommandEmpty>
+            <CommandGroup>
+              {[
+                "Tops",
+                "Bottoms",
+                "Dresses",
+                "Outerwear",
+                "Shoes",
+                "Accessories",
+              ].map((category) => (
+                <CommandItem
+                  key={category}
+                  value={category}
+                  onSelect={() => handleCategoryChange(category)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      filters.category.includes(category)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                  {category}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <Popover open={openSeason} onOpenChange={setOpenSeason}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={openSeason}
+            className="justify-between"
+          >
+            {filters.seasons.length
+              ? `${filters.seasons.length} seasons`
+              : "Season"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandInput placeholder="Search season..." />
+            <CommandEmpty>No season found.</CommandEmpty>
+            <CommandGroup>
+              {["Spring", "Summer", "Fall", "Winter", "All Season"].map(
+                (season) => (
                   <CommandItem
-                    key={category}
-                    onSelect={() => handleCategoryChange(category)}
+                    key={season}
+                    value={season}
+                    onSelect={() => handleSeasonChange(season)}
                   >
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        filters.category.includes(category)
+                        filters.seasons.includes(season)
                           ? "opacity-100"
                           : "opacity-0"
                       )}
                     />
-                    {category}
+                    {season}
                   </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
+                )
+              )}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
-      <div className="space-y-2">
-        <Label>Seasons</Label>
-        <Popover open={seasonOpen} onOpenChange={setSeasonOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={seasonOpen}
-              className="w-full justify-between"
-            >
-              {filters.seasons.length > 0
-                ? `${filters.seasons.length} selected`
-                : "Select seasons"}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
-            <Command>
-              <CommandInput placeholder="Search seasons..." />
-              <CommandEmpty>No season found.</CommandEmpty>
-              <CommandGroup>
-                {["Spring", "Summer", "Fall", "Winter", "All Season"].map(
-                  (season) => (
-                    <CommandItem
-                      key={season}
-                      onSelect={() => handleSeasonChange(season)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          filters.seasons.includes(season)
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                      {season}
-                    </CommandItem>
-                  )
-                )}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
+      <Popover open={openColor} onOpenChange={setOpenColor}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={openColor}
+            className="justify-between"
+          >
+            {filters.colors.length
+              ? `${filters.colors.length} colors`
+              : "Color"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandInput placeholder="Search color..." />
+            <CommandEmpty>No color found.</CommandEmpty>
+            <CommandGroup>
+              {[
+                "Black",
+                "White",
+                "Red",
+                "Blue",
+                "Green",
+                "Yellow",
+                "Purple",
+                "Pink",
+                "Brown",
+                "Gray",
+              ].map((color) => (
+                <CommandItem
+                  key={color}
+                  value={color}
+                  onSelect={() => handleColorChange(color)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      filters.colors.includes(color)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                  {color}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
-      <div className="space-y-2">
-        <Label>Colors</Label>
-        <Popover open={colorOpen} onOpenChange={setColorOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={colorOpen}
-              className="w-full justify-between"
-            >
-              {filters.colors.length > 0
-                ? `${filters.colors.length} selected`
-                : "Select colors"}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
-            <Command>
-              <CommandInput placeholder="Search colors..." />
-              <CommandEmpty>No color found.</CommandEmpty>
-              <CommandGroup>
-                {[
-                  "Black",
-                  "White",
-                  "Gray",
-                  "Red",
-                  "Blue",
-                  "Green",
-                  "Yellow",
-                  "Purple",
-                  "Pink",
-                  "Brown",
-                ].map((color) => (
-                  <CommandItem
-                    key={color}
-                    onSelect={() => handleColorChange(color)}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        filters.colors.includes(color)
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                    {color}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Brands</Label>
-        <Popover open={brandOpen} onOpenChange={setBrandOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={brandOpen}
-              className="w-full justify-between"
-            >
-              {filters.brands.length > 0
-                ? `${filters.brands.length} selected`
-                : "Select brands"}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
-            <Command>
-              <CommandInput placeholder="Search brands..." />
-              <CommandEmpty>No brand found.</CommandEmpty>
-              <CommandGroup>
-                {/* TODO: Replace with actual brand list from API */}
-                {["Nike", "Adidas", "Puma", "Under Armour", "New Balance"].map(
-                  (brand) => (
-                    <CommandItem
-                      key={brand}
-                      onSelect={() => handleBrandChange(brand)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          filters.brands.includes(brand)
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                      {brand}
-                    </CommandItem>
-                  )
-                )}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
+      <Popover open={openBrand} onOpenChange={setOpenBrand}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={openBrand}
+            className="justify-between"
+          >
+            {filters.brands.length
+              ? `${filters.brands.length} brands`
+              : "Brand"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandInput placeholder="Search brand..." />
+            <CommandEmpty>No brand found.</CommandEmpty>
+            <CommandGroup>
+              {[
+                "Nike",
+                "Adidas",
+                "Puma",
+                "Under Armour",
+                "New Balance",
+                "Reebok",
+                "Vans",
+                "Converse",
+              ].map((brand) => (
+                <CommandItem
+                  key={brand}
+                  value={brand}
+                  onSelect={() => handleBrandChange(brand)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      filters.brands.includes(brand)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                  {brand}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

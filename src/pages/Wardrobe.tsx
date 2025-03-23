@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/ui/use-toast";
 import type { ClothingItem, WardrobeFilters } from "@/types/wardrobe";
 import { useState } from "react";
 
@@ -43,7 +43,6 @@ export function Wardrobe() {
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   const [selectedItem, setSelectedItem] = useState<ClothingItem | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { toast } = useToast();
 
   const handleUpload = async (files: File[]) => {
     try {
@@ -53,8 +52,8 @@ export function Wardrobe() {
       return urls;
     } catch (error) {
       toast({
-        variant: "destructive",
         title: "Failed to upload images",
+        variant: "destructive",
       });
       return [];
     }
@@ -89,8 +88,8 @@ export function Wardrobe() {
       setUploadedUrls([]);
     } catch (error) {
       toast({
-        variant: "destructive",
         title: "Failed to save item",
+        variant: "destructive",
       });
     }
   };
@@ -112,8 +111,8 @@ export function Wardrobe() {
       });
     } catch (error) {
       toast({
-        variant: "destructive",
         title: "Failed to delete item",
+        variant: "destructive",
       });
     }
   };
@@ -144,6 +143,8 @@ export function Wardrobe() {
             item={selectedItem}
             uploadedUrls={uploadedUrls}
             onSubmit={handleFormSubmit}
+            open={isFormOpen}
+            onClose={() => setIsFormOpen(false)}
           />
         </DialogContent>
       </Dialog>
