@@ -1,23 +1,23 @@
 import * as React from "react";
-import type { ClothingItem } from "@/types/wardrobe";
+import { Edit, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Edit, Trash, ChevronLeft, ChevronRight } from "lucide-react";
+import type { ClothingItem } from "@/types/wardrobe";
 
 interface ItemCardProps {
   item: ClothingItem;
+  onSelect?: (item: ClothingItem) => void;
   onEdit?: (item: ClothingItem) => void;
   onDelete?: (item: ClothingItem) => void;
 }
 
-export function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
+export function ItemCard({ item, onSelect, onEdit, onDelete }: ItemCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
   const nextImage = () => {
@@ -34,41 +34,40 @@ export function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="aspect-square relative">
+      <div
+        className="relative aspect-square cursor-pointer"
+        onClick={() => onSelect?.(item)}
+      >
         <img
           src={item.imageUrls[currentImageIndex]}
-          alt={`${item.name} - Image ${currentImageIndex + 1}`}
+          alt={item.name}
           className="object-cover w-full h-full"
         />
         {item.imageUrls.length > 1 && (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 previousImage();
               }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/75"
             >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+              ‹
+            </button>
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 nextImage();
               }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-black/75"
             >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+              ›
+            </button>
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
               {item.imageUrls.map((_, index) => (
                 <div
                   key={index}
-                  className={`w-1.5 h-1.5 rounded-full ${
+                  className={`w-2 h-2 rounded-full ${
                     index === currentImageIndex ? "bg-white" : "bg-white/50"
                   }`}
                 />
@@ -79,38 +78,23 @@ export function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
       </div>
       <CardHeader>
         <CardTitle className="text-lg">{item.name}</CardTitle>
-        <CardDescription>{item.category}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-2">
-          <span className="px-2 py-1 text-xs rounded-full bg-secondary">
-            {item.color}
-          </span>
-          {item.tags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2 py-1 text-xs rounded-full bg-secondary/50"
-            >
-              {tag}
-            </span>
-          ))}
+        <div className="text-sm text-gray-500 space-y-1">
+          <p>{item.category}</p>
+          <p>{item.color}</p>
+          <p>{item.size}</p>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex justify-end gap-2">
         {onEdit && (
-          <Button variant="outline" size="sm" onClick={() => onEdit(item)}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
+          <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
+            <Edit className="h-4 w-4" />
           </Button>
         )}
         {onDelete && (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(item)}
-          >
-            <Trash className="h-4 w-4 mr-2" />
-            Delete
+          <Button variant="ghost" size="icon" onClick={() => onDelete(item)}>
+            <Trash className="h-4 w-4" />
           </Button>
         )}
       </CardFooter>
